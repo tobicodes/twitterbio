@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState, useEffect, useMemo, MouseEventHandler } from "react";
 import { toast } from "react-hot-toast";
 import DropDown, { VibeType } from "../components/DropDown";
@@ -92,15 +93,7 @@ const Home: NextPage = () => {
     setLoading(false);
   };
 
-  const checkAndStreamBabe = async () => {
-    const { content, heading } = essay;
-    if (content && heading) {
-      await streamBabe(); // generate posts
-    }
-  };
-
   useEffect(() => {
-    // checkAndStreamBabe();
     callStreamingAPI();
   }, [essay.content, essay.heading]);
 
@@ -134,66 +127,11 @@ const Home: NextPage = () => {
     }
   };
 
-  // not used atm
-
-  const streamBabe = async () => {
-    setGeneratedBios("");
-    setLoading(true);
-
-    const { data, error } = await postAPI({
-      url: "/api/generate",
-      data: {
-        vibe,
-        essay: essay?.content,
-        url,
-      },
-      timeout: Infinity,
-    });
-
-    if (error) {
-      setLoading(false);
-      console.error("Error:", error);
-      return;
-    }
-
-    const responseBody = data;
-    if (!responseBody) {
-      return;
-    }
-
-    const reader = responseBody.getReader();
-    const decoder = new TextDecoder("utf-8");
-
-    reader
-      .read()
-      .then(function process({ done, value }: { done: boolean; value: any }) {
-        if (done) {
-          setLoading(false);
-          scrollToPosts();
-          return;
-        }
-
-        if (value) {
-          const decodedValue = decoder.decode(value, { stream: !done });
-          setGeneratedBios((prev) => prev + decodedValue);
-          // scrollToPosts();
-        }
-        reader.read().then(process);
-      });
-  };
-
   // TODO might be irrelevant
   useEffect(() => {
     const tweets = createTweets(generatedBios);
     setTweets(tweets);
-    // setTweets([...tweets, newTweets])
   }, [generatedBios]);
-
-  // useEffect(() => {
-  //   if (postsRef.current !== null) {
-  //     postsRef.current.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // }, [generatedBios]);
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
@@ -246,14 +184,19 @@ const Home: NextPage = () => {
           </div>
 
           {!loading && (
-            <button
-              className="bg-purple-900 rounded-xl text-white text-slate font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-purple-700/80 w-full"
-              // onClick={(e) => generateBio(e)}
-              // onClick={(e) => streamBabe(e)}
-              onClick={debounce((e: any) => fetchEssay(e), 1000)}
-            >
-              Generate posts &rarr;
-            </button>
+            <>
+              <button
+                className="bg-purple-900 rounded-xl text-white text-slate font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-purple-700/80"
+                onClick={debounce((e: any) => fetchEssay(e), 1000)}
+              >
+                Generate posts &rarr;
+              </button>
+              <Link href="/login">
+                <button className="bg-gray-600 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 ml-8 hover:bg-gray-400">
+                  Log in
+                </button>
+              </Link>
+            </>
           )}
           {loading && (
             <button
@@ -304,7 +247,7 @@ const Home: NextPage = () => {
   );
 };
 
-const GeneratedPost = ({
+export const GeneratedPost = ({
   generatedPost,
   index,
 }: {
