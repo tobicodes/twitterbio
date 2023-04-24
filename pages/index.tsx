@@ -11,6 +11,8 @@ import debounce from "lodash.debounce";
 
 import { postAPI } from "../utils/fetch";
 import { streamingAPI } from "../utils/streaming";
+import { useAuth } from "../context/auth";
+import { getLoginSession } from "../lib/auth";
 
 function isURL(url: string) {
   try {
@@ -21,10 +23,23 @@ function isURL(url: string) {
   }
 }
 
-const Home: NextPage = () => {
+type User = {
+  createdAt: number;
+  email: string;
+  issuer: string;
+  maxAge: number;
+  oauthProvider: null;
+  phoneNumber: null;
+  publicAddress: string;
+  wallets: never[];
+};
+
+const Home: NextPage = ({ user }: User) => {
+  // TODO what to do with user
   const [loading, setLoading] = useState(false);
   const [vibe, setVibe] = useState<VibeType>("twitter");
   const [generatedBios, setGeneratedBios] = useState<string>("");
+  const { isLoggedIn } = useAuth();
 
   // ESSENCE state
   const [url, setUrl] = useState<string>("");
@@ -191,11 +206,14 @@ const Home: NextPage = () => {
               >
                 Generate posts &rarr;
               </button>
-              <Link href="/login">
-                <button className="bg-gray-600 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 ml-8 hover:bg-gray-400">
-                  Log in
-                </button>
-              </Link>
+              {/* TODO only render login page if user aint logged in*/}
+              {true && (
+                <Link href="/login">
+                  <button className="bg-gray-600 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 ml-8 hover:bg-gray-400">
+                    Log in
+                  </button>
+                </Link>
+              )}
             </>
           )}
           {loading && (
@@ -333,6 +351,15 @@ function createTweets(stream: string) {
   }
 
   return tweets;
+}
+
+export async function getServerSideProps({ req }: any) {
+  const user = await getLoginSession(req);
+  return {
+    props: {
+      user,
+    },
+  };
 }
 
 export default Home;
