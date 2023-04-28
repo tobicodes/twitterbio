@@ -7,12 +7,13 @@ import { useAuth } from "../context/auth";
 
 const Login: NextPage = () => {
   const [email, setEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>(""); // TODO: add this to the form and the fetch request in handleSubmit [line 54
   const router = useRouter();
   const { logUserIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { isLoggedIn } = await logUserIn(email);
+    const { isLoggedIn } = await logUserIn(email, firstName);
 
     // Redirect to the user page after successful login
     if (isLoggedIn) {
@@ -21,6 +22,12 @@ const Login: NextPage = () => {
   };
 
   // TODO add some email validation to input box
+
+  // write JSX code to render an input box that captures the user's first name and sends that data to the API when the form is submitted (hint: use the useState hook to capture the user's input)  (hint: use the useState hook to capture the user's input)
+  function validateEmail(email: string) {
+    const re = /\S+@\S+\.\S+/;
+    return re.test(email);
+  }
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
@@ -35,6 +42,21 @@ const Login: NextPage = () => {
         </h1>
         <div className="max-w-md w-full mt-10">
           <form onSubmit={handleSubmit}>
+            <div className="flex flex-col mb-5">
+              <label className="mb-2 font-bold text-lg text-left text-gray-700">
+                First name
+              </label>
+              <input
+                className="focus:ring-purple-500 focus:border-purple-500 block w-full pl-4 pr-3 py-2 my-5 border border-gray-300 rounded-md leading-5 bg-white text-gray-700 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 sm:text-sm transition duration-150 ease-in-out"
+                type="text"
+                name="firstName"
+                autoComplete="firstName"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+
             <div className="flex flex-col mb-5">
               <label className="mb-2 font-bold text-lg text-left text-gray-700">
                 Email address

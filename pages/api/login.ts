@@ -1,18 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Iron from "@hapi/iron";
 import { serialize, parse } from "cookie";
-import { cryptoRandomStringAsync } from "crypto-random-string";
-import { createUser } from "../../database/users";
+import { createUser, deleteUser } from "../../database/db";
 
 const { Magic } = require("@magic-sdk/admin");
-const TOKEN_SECRET = process.env.TOKEN_SECRET;
+const TOKEN_SECRET = process.env.TOKEN_SECRET!;
 const TOKEN_NAME = "token";
-let magic = new Magic(process.env.MAGIC_SECRET_KEY!);
+const magic = new Magic(process.env.MAGIC_SECRET_KEY!);
 
 export default async function login(req: NextApiRequest, res: NextApiResponse) {
-  const { email } = req.body;
+  const { email, firstName } = req.body;
   if (!email) {
     return res.status(400).json({ error: "Missing email parameter" });
+  } else if (!firstName) {
+    return res.status(400).json({ error: "Missing firstName parameter" });
   }
 
   try {
@@ -24,11 +25,19 @@ export default async function login(req: NextApiRequest, res: NextApiResponse) {
     await magic.token.validate(didToken);
 
     const metadata = await magic.users.getMetadataByToken(didToken);
-    const session = { ...metadata };
+
+    const user = { ...metadata, firstName, createdAt: new Date() };
+    const session = user;
+    // const session = { ...metadata };
+    // const { publicAddress, issuer, email } = metadata;
 
     // Create user and set login session in parallel
+
+    const p = await deleteUser("oluwatobi.ogunnaike@gmail.com");
+    console.log("P", p);
+
     const [userResult, loginResult] = await Promise.all([
-      createUser(metadata),
+      createUser(user),
       setLoginSession(res, session),
     ]);
 
@@ -37,20 +46,13 @@ export default async function login(req: NextApiRequest, res: NextApiResponse) {
 
     res.status(200).json({ loggedIn: true, metadata });
   } catch (error) {
+    // TODO log error to server
+    // TODO catch error and send to client
+    // TODO find out typical errors and handle them accordingly
     console.error(error);
     res.status(500).json({ error: "Error logging in" });
   }
 }
-
-// metadata looks like : //
-// DATA {
-//   issuer: 'did:ethr:0x40C2423930ECF78e5b5f09c9d18343B8AeCCd701',
-//   publicAddress: '0x40C2423930ECF78e5b5f09c9d18343B8AeCCd701',
-//   email: 'oluwatobi.ogunnaike@gmail.com',
-//   oauthProvider: null,
-//   phoneNumber: null,
-//   wallets: []
-// }
 
 async function setLoginSession(res, session) {
   const createdAt = Date.now();

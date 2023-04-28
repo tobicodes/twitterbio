@@ -5,6 +5,7 @@ import { useAuth } from "../context/auth";
 import Home from ".";
 import { getLoginSession } from "../lib/auth";
 
+// TODO define User type
 export default function UserHomePage({ user }) {
   const [essaysData, setEssaysData] = useState([
     {
@@ -26,7 +27,9 @@ export default function UserHomePage({ user }) {
   return (
     <>
       <div className="max-w-md w-full mt-10 mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Welcome, {userData.email}!</h1>
+        <h1 className="text-3xl font-bold mb-8">
+          Welcome, {userData.firstName}!
+        </h1>
         {essaysData && essaysData.length > 0 ? (
           <ul className="list-none space-y-4">
             {essaysData.map((essay) => (

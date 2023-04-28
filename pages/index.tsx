@@ -355,6 +355,7 @@ function createTweets(stream: string) {
 
 export async function getServerSideProps({ req }: any) {
   const user = await getLoginSession(req);
+  console.log(req);
   return {
     props: {
       user,

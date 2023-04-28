@@ -17,7 +17,7 @@ const magic = getMagic();
 type AuthContextType = {
   isLoggedIn: boolean;
   user: any;
-  logUserIn: (email: string) => Promise<{ isLoggedIn: boolean }>;
+  logUserIn: (email: string, firstName: string) => Promise<{ isLoggedIn: boolean }>;
   logUserOut: () => void;
 };
 
@@ -46,16 +46,15 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   // };
 
   // call server
-  const logUserIn = async (email: string) => {
+  const logUserIn = async (email: string, firstName: string) => {
     // get token client side
     const didToken = await magic.auth.loginWithMagicLink({
       email,
     });
 
-    debugger;
 
     // use token to call server
-    const body = { email };
+    const body = { email, firstName };
 
     const response = await fetch("/api/login", {
       method: "POST",
