@@ -23,6 +23,7 @@ function isURL(url: string) {
   }
 }
 
+// TODO consolidate User, Post types into one place
 type User = {
   createdAt: number;
   email: string;

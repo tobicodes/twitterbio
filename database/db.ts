@@ -27,7 +27,7 @@ db.once("open", function () {
   console.log("Connected to MongoDB!");
 });
 
-interface UserInterface {
+export interface UserInterface {
   email: string;
   issuer: string;
   publicAddress: string;

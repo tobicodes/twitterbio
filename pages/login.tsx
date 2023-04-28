@@ -4,23 +4,30 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "../context/auth";
+import LoadingDots from "../components/LoadingDots";
 
 const Login: NextPage = () => {
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>(""); // TODO: add this to the form and the fetch request in handleSubmit [line 54
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { logUserIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     const { isLoggedIn } = await logUserIn(email, firstName);
 
     // Redirect to the user page after successful login
     if (isLoggedIn) {
+      setIsLoading(false);
       router.push("/userpage");
     }
   };
 
+  // function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
+  //   setEmail(e.target.value);
+  // }
   // TODO add some email validation to input box
 
   // write JSX code to render an input box that captures the user's first name and sends that data to the API when the form is submitted (hint: use the useState hook to capture the user's input)  (hint: use the useState hook to capture the user's input)
@@ -71,15 +78,26 @@ const Login: NextPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-
-            <button className="bg-purple-900 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-purple-700/80">
-              Send me a link
-            </button>
-            <Link href="/">
-              <button className="bg-gray-600 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 ml-8 hover:bg-gray-400">
-                Back
+            {!isLoading && (
+              <>
+                <button className="bg-purple-900 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-2 hover:bg-purple-700 bg-opacity-80">
+                  Send me a link
+                </button>
+                <Link href="/">
+                  <button className="bg-gray-600 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-2 ml-8 hover:bg-gray-400">
+                    Back
+                  </button>
+                </Link>
+              </>
+            )}
+            {isLoading && (
+              <button
+                className="bg-purple-900 rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-2 hover:bg-purple-700 bg-opacity-80 w-100"
+                disabled
+              >
+                <LoadingDots color="white" style="large" />
               </button>
-            </Link>
+            )}
           </form>
         </div>
       </main>

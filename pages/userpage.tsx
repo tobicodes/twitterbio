@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 
 import { useAuth } from "../context/auth";
 import Home from ".";
 import { getLoginSession } from "../lib/auth";
 
-// TODO define User type
-export default function UserHomePage({ user }) {
+type User = {
+  createdAt: number;
+  email: string;
+  firstName: string;
+  issuer: string;
+  maxAge: number;
+  oauthProvider: null;
+  phoneNumber: null;
+  publicAddress: string;
+  wallets: string[];
+};
+
+export default function UserHomePage({ user }: { user: User }) {
   const [essaysData, setEssaysData] = useState([
     {
       id: 1,
-      title: "yam",
+      title: "your space",
       posts: [{ id: 1, type: "twittter", content: "stuff go dey here sha" }],
     },
   ]);
-  //   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
-  //   const { isLoggedIn, user } = useAuth();
-  const [userData, setUserData] = useState(user);
 
-  console.log(user);
   if (!user.email) {
     return <p>bros you go log in first na</p>;
   }
@@ -27,9 +32,7 @@ export default function UserHomePage({ user }) {
   return (
     <>
       <div className="max-w-md w-full mt-10 mx-auto">
-        <h1 className="text-3xl font-bold mb-8">
-          Welcome, {userData.firstName}!
-        </h1>
+        <h1 className="text-3xl font-bold mb-8">Welcome, {user.firstName}!</h1>
         {essaysData && essaysData.length > 0 ? (
           <ul className="list-none space-y-4">
             {essaysData.map((essay) => (
