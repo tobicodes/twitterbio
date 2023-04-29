@@ -23,6 +23,7 @@ function isURL(url: string) {
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [vibe, setVibe] = useState<VibeType>("twitter");
+  const [wantsHashtags, setWantsHashtags] = useState(false);
   const [generatedBios, setGeneratedBios] = useState<string>("");
 
   // ESSENCE state
@@ -40,6 +41,10 @@ const Home: NextPage = () => {
       const lastPost = postsRef?.current?.lastChild as HTMLElement;
       lastPost?.scrollIntoView({ behavior: "smooth" });
     }
+  };
+
+  const handleHashTagChange = (e: any) => {
+    setWantsHashtags(e.target.checked);
   };
 
   function isSubstackDraft(url: string) {
@@ -128,6 +133,7 @@ const Home: NextPage = () => {
             vibe,
             essay: essay.content,
             url,
+            wantsHashtags,
           }),
         },
       });
@@ -244,12 +250,26 @@ const Home: NextPage = () => {
           <div className="block">
             <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
           </div>
+          <div className="flex items-center mt-5">
+            <input
+              id="hashtag-checkbox"
+              name={"hashtags"}
+              type="checkbox"
+              className="w-4 h-4 text-purple-600 bg-gray-100 border-purple-600 rounded focus:ring-purple-500 focus:border-purple-500 focus:ring-offset-gray-100"
+              checked={wantsHashtags}
+              onChange={handleHashTagChange}
+            />
+            <label
+              htmlFor={"Enable hashtags"}
+              className="ml-2 block font-medium text-sm text-gray-900"
+            >
+              Enable hashtags
+            </label>
+          </div>
 
           {!loading && (
             <button
               className="bg-purple-900 rounded-xl text-white text-slate font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-purple-700/80 w-full"
-              // onClick={(e) => generateBio(e)}
-              // onClick={(e) => streamBabe(e)}
               onClick={debounce((e: any) => fetchEssay(e), 1000)}
             >
               Generate posts &rarr;
