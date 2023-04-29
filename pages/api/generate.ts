@@ -14,7 +14,7 @@ const handler = async (req: Request, res: Response) => {
     essay?: string;
     url?: string;
     vibe?: VibeType;
-    wantsHashtags?: boolean;
+    wantsHashtags: boolean;
   };
 
   if (!essay) {
