@@ -214,6 +214,14 @@ const Home: NextPage = () => {
         <p className="text-slate-500 mt-5">
           Spend your time writing banger essays...we'll handle the tweets.
         </p>
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfa8iIXrSaMAyZ1GX-duI7Yt7a4JutFC_GTB8FevkHaCgQJmw/viewform?vc=0&c=0&w=1&flr=0"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-purple-900 underline hover:text-purple-700 mt-3"
+        >
+          Give us feedback
+        </a>
         <div className="max-w-xl w-full">
           <div className="flex mt-10 items-center space-x-3">
             <Image
