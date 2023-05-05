@@ -10,21 +10,13 @@ import debounce from "lodash.debounce";
 
 import { postAPI } from "../utils/fetch";
 import { streamingAPI } from "../utils/streaming";
-
-function isURL(url: string) {
-  try {
-    new URL(url);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
+import { isURL, isSubstackDraft } from "../utils/utils";
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [vibe, setVibe] = useState<VibeType>("twitter");
   const [wantsHashtags, setWantsHashtags] = useState(false);
-  const [generatedBios, setGeneratedBios] = useState<string>("");
+  const [rawStreamingResult, setRawStreamingResult] = useState<string>("");
 
   // ESSENCE state
   const [url, setUrl] = useState<string>("");
@@ -47,11 +39,6 @@ const Home: NextPage = () => {
     setWantsHashtags(e.target.checked);
   };
 
-  function isSubstackDraft(url: string) {
-    const pattern = /^https:\/\/[\w.-]+\/publish\/post\/\d+$/;
-    return pattern.test(url);
-  }
-
   const isValidURL = (url: string) => {
     if (!isURL(url)) {
       setError("Please enter a valid Substack URL.");
@@ -66,8 +53,8 @@ const Home: NextPage = () => {
   };
 
   const fetchEssay = async (e: any) => {
-    // Clear existing tweets and generatedBios
-    setGeneratedBios("");
+    // Clear existing tweets and rawStreamingResult
+    setRawStreamingResult("");
     setTweets([]);
 
     if (!isValidURL(url)) {
@@ -97,15 +84,7 @@ const Home: NextPage = () => {
     setLoading(false);
   };
 
-  const checkAndStreamBabe = async () => {
-    const { content, heading } = essay;
-    if (content && heading) {
-      await streamBabe(); // generate posts
-    }
-  };
-
   useEffect(() => {
-    // checkAndStreamBabe();
     callStreamingAPI();
   }, [essay.content, essay.heading]);
 
@@ -114,7 +93,7 @@ const Home: NextPage = () => {
       streamingAPI({
         url: "/api/generate",
         onDataChunk: (chunk) => {
-          setGeneratedBios((prev) => prev + chunk);
+          setRawStreamingResult((prev) => prev + chunk);
         },
         onDataEnd: () => {
           setLoading(false);
@@ -140,66 +119,11 @@ const Home: NextPage = () => {
     }
   };
 
-  // not used atm
-
-  const streamBabe = async () => {
-    setGeneratedBios("");
-    setLoading(true);
-
-    const { data, error } = await postAPI({
-      url: "/api/generate",
-      data: {
-        vibe,
-        essay: essay?.content,
-        url,
-      },
-      timeout: Infinity,
-    });
-
-    if (error) {
-      setLoading(false);
-      console.error("Error:", error);
-      return;
-    }
-
-    const responseBody = data;
-    if (!responseBody) {
-      return;
-    }
-
-    const reader = responseBody.getReader();
-    const decoder = new TextDecoder("utf-8");
-
-    reader
-      .read()
-      .then(function process({ done, value }: { done: boolean; value: any }) {
-        if (done) {
-          setLoading(false);
-          scrollToPosts();
-          return;
-        }
-
-        if (value) {
-          const decodedValue = decoder.decode(value, { stream: !done });
-          setGeneratedBios((prev) => prev + decodedValue);
-          // scrollToPosts();
-        }
-        reader.read().then(process);
-      });
-  };
-
   // TODO might be irrelevant
   useEffect(() => {
-    const tweets = createTweets(generatedBios);
+    const tweets = createTweets(rawStreamingResult);
     setTweets(tweets);
-    // setTweets([...tweets, newTweets])
-  }, [generatedBios]);
-
-  // useEffect(() => {
-  //   if (postsRef.current !== null) {
-  //     postsRef.current.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // }, [generatedBios]);
+  }, [rawStreamingResult]);
 
   return (
     <div className="flex max-w-5xl mx-auto flex-col items-center justify-center py-2 min-h-screen">
@@ -295,7 +219,7 @@ const Home: NextPage = () => {
 
         <hr className="h-px bg-gray-700 border-1 dark:bg-gray-700" />
         <div className="space-y-10 my-10">
-          {generatedBios && (
+          {rawStreamingResult && (
             <>
               <div>
                 <h2 className="sm:text-4xl text-3xl font-bold text-slate-900 mx-auto">
@@ -360,7 +284,7 @@ const GeneratedPost = ({
             className="bg-yellow-400 text-white rounded-lg px-2 py-1 mr-2"
             onClick={(e) => {
               e.stopPropagation();
-              console.log("yam");
+              console.log("upvote");
               toast.success("Upvote counted");
             }}
           >
