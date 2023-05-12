@@ -142,7 +142,7 @@ const Home: NextPage = () => {
           href="https://docs.google.com/forms/d/e/1FAIpQLSfa8iIXrSaMAyZ1GX-duI7Yt7a4JutFC_GTB8FevkHaCgQJmw/viewform?vc=0&c=0&w=1&flr=0"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-purple-900 underline hover:text-purple-700 mt-3"
+          className="text-purple-900 underline hover:text-purple-600 mt-3"
         >
           Give us feedback
         </a>
@@ -179,7 +179,7 @@ const Home: NextPage = () => {
             <Image src="/2-black.png" width={30} height={30} alt="1 icon" />
             <p className="text-left font-medium">Select your vibe.</p>
           </div>
-          <div className="block">
+          <div className="block ">
             <DropDown vibe={vibe} setVibe={(newVibe) => setVibe(newVibe)} />
           </div>
           <div className="flex items-center mt-5">
@@ -201,7 +201,7 @@ const Home: NextPage = () => {
 
           {!loading && (
             <button
-              className="bg-purple-900 rounded-xl text-white text-slate font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-purple-700/80 w-full"
+              className="bg-purple-700 rounded-xl text-white text-slate font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-purple-700/80 w-full"
               onClick={debounce((e: any) => fetchEssay(e), 1000)}
             >
               Generate posts &rarr;
